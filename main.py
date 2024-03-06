@@ -117,21 +117,27 @@ def adicionar_elementos(grafo, num_criaturas, num_armas, num_perigos, num_checkp
     ]
     perigos = ["Gás Venenoso", "Poço de Piche", "Areia Movediça", "Planta Venenosa"]
 
+    elementos = {vertice: [] for vertice in grafo}
+
     for vertice in grafo:
-        grafo[vertice] = []
         if random.random() < num_criaturas / num_vertices:
-            grafo[vertice].append(random.choice(criaturas))
+            criatura = random.choice(criaturas)
+            elementos[vertice].append(criatura)
         if random.random() < num_armas / num_vertices:
-            grafo[vertice].append(random.choice(armas))
+            arma = random.choice(armas)
+            elementos[vertice].append(arma)
         if random.random() < num_perigos / num_vertices:
-            grafo[vertice].append(random.choice(perigos))
+            perigo = random.choice(perigos)
+            elementos[vertice].append(perigo)
         if num_checkpoints > 0:
             if random.random() < 1 / num_vertices:
-                grafo[vertice].append("Checkpoint")
+                elementos[vertice].append("Checkpoint")
                 num_checkpoints -= 1
 
+    return elementos
+
 # Função para explorar a ilha
-def explorar_ilha(grafo, personagem, vertice_inicial, vertice_final):
+def explorar_ilha(grafo, elementos, personagem, vertice_inicial, vertice_final):
     fila = [(vertice_inicial, 0)]
     visitados = set()
     while fila:
@@ -150,8 +156,7 @@ def explorar_ilha(grafo, personagem, vertice_inicial, vertice_final):
         visitados.add(vertice_atual)
         print(f"Você está no vértice {vertice_atual}")
 
-        elementos = grafo[vertice_atual]
-        for elemento in elementos:
+        for elemento in elementos[vertice_atual]:
             if isinstance(elemento, Criatura):
                 personagem.batalhar(elemento)
                 if personagem.pontos_de_vida <= 0:
@@ -179,10 +184,10 @@ def explorar_ilha(grafo, personagem, vertice_inicial, vertice_final):
 # Exemplo de uso
 num_vertices = 20
 grafo = criar_grafo(num_vertices)
-adicionar_elementos(grafo, num_criaturas=4, num_armas=3, num_perigos=3, num_checkpoints=3)
+elementos = adicionar_elementos(grafo, num_criaturas=4, num_armas=3, num_perigos=3, num_checkpoints=3)
 
 personagem = Personagem()
 vertice_inicial = 0
 vertice_final = num_vertices - 1
 
-tesouro_encontrado = explorar_ilha(grafo, personagem, vertice_inicial, vertice_final)
+tesouro_encontrado = explorar_ilha(grafo, elementos, personagem, vertice_inicial, vertice_final)
