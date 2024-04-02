@@ -58,10 +58,31 @@ class Explorer:
         else:
             print("Não há tesouro nessa região.")
 
-    def handle_region_events(self, region):
-        # Lidar com eventos na região
+       def handle_region_events(self, region):
+        # Lidar com criaturas na região
+        creatures = [event for event in region.events if isinstance(event, Creature)]
+        if creatures:
+            for creature in creatures:
+                self.battle(creature)
+    
+        # Lidar com perigos na região
+        dangers = [event for event in region.events if isinstance(event, Danger)]
+        if dangers:
+            for danger in dangers:
+                print(f"Você encontrou um {type(danger).__name__} na região {region.value}!")
+                if not danger.handle_danger(self):
+                    print("Você não conseguiu superar o perigo e foi derrotado!")
+                    return
+    
+        # Lidar com outras coisas na região (por exemplo, itens de cura)
+        other_events = [event for event in region.events if not isinstance(event, Creature) and not isinstance(event, Danger)]
+        for event in other_events:
+            event.handle_event(self)
+    
+        print(f"Você explorou com sucesso a região {region.value}!")
+    
+            pass
 
-        pass
     def battle(self, creature):
         print(f"Você encontrou um(a) {type(creature).__name__} na região {self.current_region.value}!")
         
