@@ -58,30 +58,53 @@ class Explorer:
         else:
             print("Não há tesouro nessa região.")
 
-       def handle_region_events(self, region):
-        # Lidar com criaturas na região
-        creatures = [event for event in region.events if isinstance(event, Creature)]
-        if creatures:
-            for creature in creatures:
-                self.battle(creature)
-    
-        # Lidar com perigos na região
-        dangers = [event for event in region.events if isinstance(event, Danger)]
-        if dangers:
-            for danger in dangers:
-                print(f"Você encontrou um {type(danger).__name__} na região {region.value}!")
-                if not danger.handle_danger(self):
-                    print("Você não conseguiu superar o perigo e foi derrotado!")
-                    return
-    
-        # Lidar com outras coisas na região (por exemplo, itens de cura)
-        other_events = [event for event in region.events if not isinstance(event, Creature) and not isinstance(event, Danger)]
-        for event in other_events:
-            event.handle_event(self)
-    
-        print(f"Você explorou com sucesso a região {region.value}!")
-    
-            pass
+   def handle_region_events(self, region):
+    # Lidar com criaturas na região
+    creatures = [event for event in region.events if isinstance(event, Creature)]
+    if creatures:
+        for creature in creatures:
+            self.battle(creature)
+
+    # Lidar com perigos na região
+    dangers = [event for event in region.events if isinstance(event, Danger)]
+    if dangers:
+        for danger in dangers:
+            print(f"Você encontrou um {type(danger).__name__} na região {region.value}!")
+            if not danger.handle_danger(self):
+                print("Você não conseguiu superar o perigo e foi derrotado!")
+                return
+
+    # Lidar com outras coisas na região (por exemplo, itens de cura)
+    other_events = [event for event in region.events if not isinstance(event, Creature) and not isinstance(event, Danger)]
+    for event in other_events:
+        event.handle_event(self)
+
+    print(f"Você explorou com sucesso a região {region.value}!")
+
+        pass
+
+    def traverse_island(self):
+    from collections import deque
+
+    queue = deque([(self.current_region, [])])
+    visited = set()
+
+    while queue:
+        region, path = queue.popleft()
+        if region == self.island.treasure_region:
+            print(f"Tesouro encontrado! Caminho: {' -> '.join(str(r.value) for r in path + [region])}")
+            return
+
+        visited.add(region)
+
+        for neighbor in region.paths:
+            if neighbor.destination not in visited:
+                new_path = path + [region]
+                queue.append((neighbor.destination, new_path))
+
+        if not queue:
+            print("Não foi possível encontrar o tesouro.")
+
 
     def battle(self, creature):
         print(f"Você encontrou um(a) {type(creature).__name__} na região {self.current_region.value}!")
